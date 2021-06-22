@@ -110,6 +110,7 @@
 
 
 local EnumList = require(script.Parent.EnumList)
+local Signal = require(script.Parent.Signal)
 
 local Thread = {}
 
@@ -131,7 +132,9 @@ function Thread.SpawnNow(func, ...)
 	--]]
 	local args = table.pack(...)
 	local bindable = Instance.new("BindableEvent")
-	bindable.Event:Connect(function() func(table.unpack(args, 1, args.n)) end)
+	bindable.Event:Connect(function()
+		func(table.unpack(args, 1, args.n))
+	end)
 	bindable:Fire()
 	bindable:Destroy()
 end
@@ -153,7 +156,7 @@ function Thread.Delay(waitTime, func, ...)
 	local executeTime = (time() + waitTime)
 	local hb
 	hb = heartbeat:Connect(function()
-		if (time() >= executeTime) then
+		if time() >= executeTime then
 			hb:Disconnect()
 			func(table.unpack(args, 1, args.n))
 		end
@@ -164,7 +167,7 @@ end
 
 function Thread.DelayRepeat(intervalTime, func, behavior, ...)
 	local args = table.pack(...)
-	if (behavior == nil) then
+	if behavior == nil then
 		behavior = Thread.DelayRepeatBehavior.Delayed
 	end
 	assert(Thread.DelayRepeatBehavior:Is(behavior), "Invalid behavior")
@@ -172,7 +175,7 @@ function Thread.DelayRepeat(intervalTime, func, behavior, ...)
 	local nextExecuteTime = (time() + (immediate and 0 or intervalTime))
 	local hb
 	hb = heartbeat:Connect(function()
-		if (time() >= nextExecuteTime) then
+		if time() >= nextExecuteTime then
 			nextExecuteTime = (time() + intervalTime)
 			func(table.unpack(args, 1, args.n))
 		end
@@ -180,5 +183,38 @@ function Thread.DelayRepeat(intervalTime, func, behavior, ...)
 	return hb
 end
 
+function Thread.DelayUpdate(intervalTime: table, func, behavior, ...)
+	behavior = behavior or Thread.DelayRepeatBehavior.Delayed
+	assert(Thread.DelayRepeatBehavior:Is(behavior), "Invalid behavior")
+
+	local immediate = (behavior == Thread.DelayRepeatBehavior.Immediate)
+	local nextExecuteTime = (time() + (immediate and 0 or intervalTime[1]))
+	local hb
+
+	local args = table.pack(...)
+
+	hb = heartbeat:Connect(function()
+		if time() >= nextExecuteTime then
+			nextExecuteTime = (time() + intervalTime[1])
+			func(table.unpack(args, 1, args.n))
+		end
+	end)
+	return hb
+end
+
+function Thread.DelayYield(waitTime: number)
+    local executeTime = (time() + waitTime)
+	local event = Signal.new()
+
+	local hb
+	hb = heartbeat:Connect(function()
+		if time() >= executeTime then
+			hb:Disconnect()
+			event:Fire()
+		end
+	end)
+
+	event:Wait()
+end
 
 return Thread
