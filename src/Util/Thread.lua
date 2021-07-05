@@ -181,7 +181,7 @@ function Thread.DelayRepeat(intervalTime, func, behavior, ...)
 			func(table.unpack(args, 1, args.n))
 		end
 	end)
-	return hb, Signal.new()
+	return hb
 end
 
 function Thread.DelayUpdate(intervalTime: table, func, behavior, ...)
