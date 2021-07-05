@@ -18,22 +18,23 @@ local Signal = require(script.Parent.Signal)
 local Property = {}
 Property.__index = Property
 
-function Property.new(value: any)
+function Property.new(...)
     return setmetatable({
-        _value = value,
+        _value = table.pack(...),
         Changed = Signal.new()
     }, Property)
 end
 
 function Property:Get()
-    return self._value
+    return table.unpack(self._value)
 end
 
-function Property:Set(value)
-    if self._value == value then return end
+function Property:Set(...)
+    local args = table.pack(...)
+    if self._value == args then return end
 
-    self._value = value
-    return self.Changed:Fire(value)
+    self._value = args
+    return self.Changed:Fire(...)
 end
 
 function Property:Destroy()
