@@ -173,6 +173,7 @@ function Thread.DelayRepeat(intervalTime, func, behavior, ...)
 	assert(Thread.DelayRepeatBehavior:Is(behavior), "Invalid behavior")
 	local immediate = (behavior == Thread.DelayRepeatBehavior.Immediate)
 	local nextExecuteTime = (time() + (immediate and 0 or intervalTime))
+
 	local hb
 	hb = heartbeat:Connect(function()
 		if time() >= nextExecuteTime then
@@ -180,7 +181,7 @@ function Thread.DelayRepeat(intervalTime, func, behavior, ...)
 			func(table.unpack(args, 1, args.n))
 		end
 	end)
-	return hb
+	return hb, Signal.new()
 end
 
 function Thread.DelayUpdate(intervalTime: table, func, behavior, ...)
