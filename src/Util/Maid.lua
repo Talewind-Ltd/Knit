@@ -92,7 +92,7 @@ function Maid:GiveTask(task)
 		warn("[Maid.GiveTask] - Gave table task without .Destroy\n\n" .. debug.traceback())
 	end
 
-	return taskId
+	return task, taskId
 end
 
 
