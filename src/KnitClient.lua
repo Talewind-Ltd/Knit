@@ -12,8 +12,9 @@
 
 
 local KnitClient = {}
+local parentModule = script.Parent -- Necessary thanks to Roblox compile error
 
-KnitClient.Version = script.Parent.Version.Value
+KnitClient.Version = parentModule:WaitForChild("Version").Value
 KnitClient.Player = game:GetService("Players").LocalPlayer
 KnitClient.Controllers = {}
 KnitClient.Util = script.Parent.Util
